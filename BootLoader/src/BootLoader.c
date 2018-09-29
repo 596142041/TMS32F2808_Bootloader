@@ -145,8 +145,16 @@ void CAN_BOOT_ExecutiveCommand(CanRxMsg *pRxMessage)
 						   (((u32)(pRxMessage->CAN_Rx_msg_data.msg_byte.data[1])&0x00FFFFFF)<<0x10)|\
 						   (((u32)(pRxMessage->CAN_Rx_msg_data.msg_byte.data[2])&0x0000FFFF)<<0x08)|\
 						   (((u32)(pRxMessage->CAN_Rx_msg_data.msg_byte.data[3])&0x000000FF)<<0x00);
-			FlashSize    = FlashSize>>1;
+
 			file_type  =  pRxMessage->CAN_Rx_msg_data.msg_Byte.byte4;
+			if(file_type == File_hex)
+			{
+			    FlashSize    = FlashSize>>1;
+			}
+			else
+			{
+			    FlashSize    = FlashSize;
+			}
 			u8  SECT_num = 0;
 			u32 SEC_temp = 0x00;
 			SECT_num     = FlashSize/DEVICE_INFO.Sector_size;
@@ -217,6 +225,16 @@ void CAN_BOOT_ExecutiveCommand(CanRxMsg *pRxMessage)
 						 (((u32)(pRxMessage->CAN_Rx_msg_data.msg_byte.data[5])&0x00FFFFFF)<<0x10)|\
 					     (((u32)(pRxMessage->CAN_Rx_msg_data.msg_byte.data[6])&0x0000FFFF)<<0x08)|\
 					     (((u32)(pRxMessage->CAN_Rx_msg_data.msg_byte.data[7])&0x000000FF)<<0x00);
+			//add
+			if(file_type == File_bin)
+			{
+			    start_addr = APP_INFO_ADDR+start_addr;
+
+			}
+			else
+			{
+			    start_addr = start_addr;
+			}
 			__set_PRIMASK(0);
 			if(can_addr != 0x00)
 			{
@@ -268,7 +286,7 @@ void CAN_BOOT_ExecutiveCommand(CanRxMsg *pRxMessage)
 		//该函数在Bootloader程序中必须实现，APP程序可以不用实现
 		if(can_cmd == cmd_list.Write)
 		{
-			if(file_type == File_hex)
+			if(file_type == File_hex||file_type == File_bin)
 			{
 				if((data_index<data_size)&&(data_index<DATA_LEN*2))
 				{
@@ -284,9 +302,19 @@ void CAN_BOOT_ExecutiveCommand(CanRxMsg *pRxMessage)
 					{
 						__set_PRIMASK(1);
 						//此处是将接收到的数据写入FLASH,关键之处,需要仔细考虑
-						for(i = 0;i<(data_size-2)>>1;i++)
+						if(file_type == File_hex)
 						{
-							write_temp[i] = data_temp[2*i]<<8|data_temp[2*i+1];
+						    for(i = 0;i<(data_size-2)>>1;i++)
+                            {
+                                write_temp[i] = data_temp[2*i]<<8|data_temp[2*i+1];
+                            }
+						}
+						else if(file_type == File_bin)
+						{
+                            for(i = 0;i<(data_size-2)>>1;i++)
+                            {
+                                write_temp[i] = data_temp[2*i]|data_temp[2*i+1]<<8;
+                            }
 						}
 						ret = Flash_WR(start_addr,write_temp,(data_size-2)>>1);
 						__set_PRIMASK(0);
