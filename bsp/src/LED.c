@@ -41,7 +41,7 @@ interrupt void cpu_timer0_isr(void)
 	     {
 	  	   updata_info.time_cnt++;
 	  	 CpuTimer0.InterruptCount = 0;
-	  	   if(updata_info.time_cnt == 10)
+	  	   if(updata_info.time_cnt == 5)
 	  	   {
 	  		   updata_info.time_out_flag = 1;
 	  	   }
