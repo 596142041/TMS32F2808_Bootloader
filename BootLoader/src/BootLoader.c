@@ -36,11 +36,11 @@ Boot_CMD_LIST cmd_list =
 };
 Device_INFO DEVICE_INFO =
 {
- .Sector_size                   = 0x400,
- .FW_Version.bits.Version       = 31,
- .FW_Version.bits.date          = 31,
- .FW_Version.bits.month         = 12,
- .FW_Version.bits.year          = 2017,
+ .Sector_size                   = 0x4000,//表示当前芯片的FLASH扇区的大小,仅适用于TI的DSP芯片
+ .FW_Version.bits.Version       = 23,
+ .FW_Version.bits.date          = 8,
+ .FW_Version.bits.month         = 10,
+ .FW_Version.bits.year          = 2018,
  .Device_addr.bits.reserve      = 0x00,
  .FW_TYPE.bits.FW_type          = CAN_BL_BOOT,
  .FW_TYPE.bits.Chip_Value       = TMS230F2808,
@@ -225,11 +225,9 @@ void CAN_BOOT_ExecutiveCommand(CanRxMsg *pRxMessage)
 						 (((u32)(pRxMessage->CAN_Rx_msg_data.msg_byte.data[5])&0x00FFFFFF)<<0x10)|\
 					     (((u32)(pRxMessage->CAN_Rx_msg_data.msg_byte.data[6])&0x0000FFFF)<<0x08)|\
 					     (((u32)(pRxMessage->CAN_Rx_msg_data.msg_byte.data[7])&0x000000FF)<<0x00);
-			//add
 			if(file_type == File_bin)
 			{
-			    start_addr = APP_INFO_ADDR+start_addr;
-
+			    start_addr = APP_INFO_ADDR+(start_addr>>1);//此处需要注意,如果是bin文件,地址偏移需要右移1位,因为在写flash时是16位写入!!!!!
 			}
 			else
 			{
@@ -264,6 +262,12 @@ void CAN_BOOT_ExecutiveCommand(CanRxMsg *pRxMessage)
 																 cmd_list.CmdSuccess;
 					TxMessage.DLC                              = 1;
 					TxMessage.CAN_Tx_msg_data.msg_byte.data[0] = cmd_list.WriteInfo;
+					/*------用于测试验证代码------------
+                    TxMessage.CAN_Tx_msg_data.msg_byte.data[1] = (u8)((start_addr>>0x18)&0xFF);
+                    TxMessage.CAN_Tx_msg_data.msg_byte.data[2] = (u8)((start_addr>>0x10)&0xFF);
+                    TxMessage.CAN_Tx_msg_data.msg_byte.data[3] = (u8)((start_addr>>0x08)&0xFF);
+                    TxMessage.CAN_Tx_msg_data.msg_byte.data[4] = (u8)((start_addr>>0x00)&0xFF);
+                    */
 					CAN_Tx_Msg(&TxMessage);
 					return;
 				}
@@ -271,7 +275,7 @@ void CAN_BOOT_ExecutiveCommand(CanRxMsg *pRxMessage)
 			else
 			{
 				TxMessage.ExtId.bit.ExtId                  = (DEVICE_INFO.Device_addr.bits.Device_addr<<CMD_WIDTH)|\
-												             cmd_list.CmdSuccess;
+												             cmd_list.CmdFaild;
 				TxMessage.DLC                              = 2;
 				TxMessage.CAN_Tx_msg_data.msg_byte.data[0] = cmd_list.WriteInfo;
 				TxMessage.CAN_Tx_msg_data.msg_byte.data[1] = DEVICE_ADDR_ERROR;
@@ -302,14 +306,14 @@ void CAN_BOOT_ExecutiveCommand(CanRxMsg *pRxMessage)
 					{
 						__set_PRIMASK(1);
 						//此处是将接收到的数据写入FLASH,关键之处,需要仔细考虑
-						if(file_type == File_hex)
+						if(file_type == File_hex)//在烧写bin文件和hex文件在此处不一致
 						{
 						    for(i = 0;i<(data_size-2)>>1;i++)
                             {
                                 write_temp[i] = data_temp[2*i]<<8|data_temp[2*i+1];
                             }
 						}
-						else if(file_type == File_bin)
+						else if(file_type == File_bin)//bin文件一定使用CCS自带的工具生成!!!!
 						{
                             for(i = 0;i<(data_size-2)>>1;i++)
                             {
