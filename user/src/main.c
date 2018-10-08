@@ -81,7 +81,6 @@ int main(void)
     CANB_tx_msg.MBox_num = 0;
     CANB_tx_msg.SAE_J1939_Flag = 0;
     CANB_tx_msg.Tx_timeout_cnt = 100;
-    CAN_Tx_Msg(&CANA_tx_msg);
 	while (1)
 	{
 	    if(updata_info.time_out_flag == 0)
@@ -100,7 +99,7 @@ int main(void)
 	    }
 	    else
 	    {
-	        CAN_BOOT_JumpToApplication(APP_START_ADDR);
+	       CAN_BOOT_JumpToApplication(APP_START_ADDR);
 	    }
 
 	}
