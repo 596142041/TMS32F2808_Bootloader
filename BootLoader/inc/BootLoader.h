@@ -1,10 +1,8 @@
-/*
- * BootLoader.h
- *
- *  Created on: 2017年4月19日
- *      Author: admin
- */
-
+/********************************************************
+ *文件名:BootLoader.h
+ *日期:2018-10-09
+ *作者: 皇甫仁和
+ ********************************************************/
 #ifndef BOOTLOADER_BOOTLOADER_H_
 #define BOOTLOADER_BOOTLOADER_H_
 #include "include.h"
@@ -115,7 +113,7 @@ typedef struct _Boot_CMD_LIST
 extern Boot_CMD_LIST cmd_list;
 extern bootloader_data Bootloader_data;
 extern Device_INFO DEVICE_INFO;
-extern Uint16 app_check[3];
+extern Uint16 app_check[2];
 void __disable_irq(void);
 void __enable_irq(void);
 void __set_PRIMASK(u8 state);

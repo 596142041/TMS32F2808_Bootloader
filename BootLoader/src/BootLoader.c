@@ -1,9 +1,8 @@
-/*
- * BootLoader.c
- *
- *  Created on: 2017年4月19日
- *      Author: admin
- */
+/********************************************************
+ *文件名:BootLoader.c
+ *创建时间:2018-10-09
+ *作者: 皇甫仁和
+ ********************************************************/
 #include "BootLoader.h"
 bootloader_data Boot_ID_info;
 u8	   data_temp[DATA_LEN*2];
@@ -20,8 +19,7 @@ u32 data_index      = (u32)0x00;//数据指针
 u32 FlashSize       = (u32)0x00;
 uint32_t exe_type   = (u32)0x00;
 u8 file_type = File_None;
-Uint16 app_check[3] = {0xFFFF,0xFFFF,0xF5F4};
-
+Uint16 app_check[2] = {0xFFFF,0xF2F3};
 Boot_CMD_LIST cmd_list =
 {
 	.Read        = 0x0A, //读取flash数据
