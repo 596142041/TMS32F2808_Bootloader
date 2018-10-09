@@ -1,12 +1,9 @@
-/*
- * LED.c
- *
- *  Created on: 2017��5��21��
- *      Author: admin
- */
+/********************************************************
+ *文件名:LED.c
+ *创建时间:2018-10-09
+ *作者: 皇甫仁和
+ ********************************************************/
 #include "LED.h"
-#include "CANA.h"
-extern CanTxMsg CANA_tx_msg,CANB_tx_msg;
 UPDATA_INFO updata_info =
 {
 		.time_cnt = 0,
@@ -39,16 +36,10 @@ interrupt void cpu_timer0_isr(void)
    {
 	   if( CpuTimer0.InterruptCount == 10)
 	     {
-	  	   updata_info.time_cnt++;
 	  	   CpuTimer0.InterruptCount = 0;
-	  	   if(updata_info.time_cnt == 5)
-	  	   {
-	  		   updata_info.time_out_flag = 1;
-	  	   }
 	     }
    }
-   GpioDataRegs.GPATOGGLE.bit.GPIO23 = 1; // Toggle GPIO32 once per 500 milliseconds
-   // Acknowledge this interrupt to receive more interrupts from group 1
+   GpioDataRegs.GPATOGGLE.bit.GPIO23 = 1;
    PieCtrlRegs.PIEACK.all = PIEACK_GROUP1;
 }
 
