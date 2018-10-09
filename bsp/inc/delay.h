@@ -1,9 +1,8 @@
-/*
- * delay.h
- *
- *  Created on: 2016年10月25日
- *      Author: Administrator
- */
+/********************************************************
+ *文件名:delay.h
+ *创建时间:2018-10-09
+ *作者: 皇甫仁和
+ ********************************************************/
 
 #ifndef USER_INC_DELAY_H_
 #define USER_INC_DELAY_H_
@@ -13,7 +12,4 @@ void delay_us(unsigned long int nus);
 void delay_ms(unsigned long int nms);
 void delay_s(unsigned long int ns);
 void delay(unsigned long int i);
-
-
-
 #endif /* USER_INC_DELAY_H_ */

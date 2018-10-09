@@ -1,10 +1,8 @@
-/*
- * define.h
- *
- *  Created on: 2016年10月17日
- *      Author: Administrator
- */
-
+/********************************************************
+ *文件名:define.h
+ *创建时间:2018-10-09
+ *作者: 皇甫仁和
+ ********************************************************/
 #ifndef TMS320F2808_USER_INC_DEFINE_H_
 #define TMS320F2808_USER_INC_DEFINE_H_
 typedef unsigned short int u16;
