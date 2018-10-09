@@ -1,30 +1,17 @@
-/*
-
- * main.c
- *
- *  Created on: 2017年4月16日
- *      Author: admin
- */
-/*****************************************************************
- *整体的思路是:
- * 第一步:样子FLASH的数据写入和擦除;
- * 第二步:验证CAN总线接收数据;
- * 第三步:根据前面的步骤进行最后综合
- * 第一步验证FLASH功能函数基本结束;
- * 需要添加两个功能函数:从某个地址写入和从某个地址读出的函数
- *****************************************************************/
+/********************************************************
+ *文件名:main.c
+ *创建时间:2018-10-09
+ *作者: 皇甫仁和
+ ********************************************************/
 #include "main.h"
 #include "BootLoader.h"
 #include "LED.h"
-CanTxMsg CANA_tx_msg,CANB_tx_msg;
 int main(void)
 {
 	DINT;
 	DRTM;
 	InitSysCtrl();
 	CAN_GPIO_Config(CANA);
-	CAN_GPIO_Config(CANB);
-
 	LED_GPIO_Config();
 	CsmUnlock();
 	InitPieCtrl();
@@ -39,17 +26,15 @@ int main(void)
 	MemCopy(&Flash28_API_LoadStart, &Flash28_API_LoadEnd,&Flash28_API_RunStart);
 	InitFlash();
 	FlashAPI_Init();
-	/*
+	//此处用于判断当前是否存在app应用程序,如果存在就直接跳转至应用层
 	FLASH_ST Flash_status;
 	Uint16 status = 0x0001;
-	status = Flash_Verify((Uint16*)APP_INFO_ADDR,app_check,3,&Flash_status);
+	status = Flash_Verify((Uint16*)APP_INFO_ADDR,app_check,2,&Flash_status);
 	if(status == STATUS_SUCCESS)
 	{
 		CAN_BOOT_JumpToApplication(APP_START_ADDR);
 	}
-	*/
 	CAN_Config(CANA,250);
-	CAN_Config(CANB,250);
 	CAN_Rx_Config();
 	CAN_Rx_IT_Concig();
 	//配置LED指示灯
@@ -61,26 +46,6 @@ int main(void)
 	IER |= M_INT9;
 	IER |= M_INT1;
 	__enable_irq();
-    CANA_tx_msg.CAN_num = CANA;
-    CANA_tx_msg.DLC = 8;
-    CANA_tx_msg.ExtId.all = 0x4187;
-    CANA_tx_msg.IDE  =CAN_ID_EXT;
-    CANA_tx_msg.SAE_J1939_Flag = 0;
-    CANA_tx_msg.MBox_num = 0;
-    CANA_tx_msg.Tx_timeout_cnt = 1000;
-    int i = 0;
-    for(i = 0;i<8;i++)
-    {
-        CANA_tx_msg.CAN_Tx_msg_data.msg_byte.data[i] = i;
-        CANB_tx_msg.CAN_Tx_msg_data.msg_byte.data[i] = i<<1;
-    }
-    CANB_tx_msg.CAN_num = CANB;
-    CANB_tx_msg.DLC = 8;
-    CANB_tx_msg.ExtId.all = 0x4189;
-    CANB_tx_msg.IDE = CAN_ID_EXT;
-    CANB_tx_msg.MBox_num = 0;
-    CANB_tx_msg.SAE_J1939_Flag = 0;
-    CANB_tx_msg.Tx_timeout_cnt = 100;
 	while (1)
 	{
 	    if(updata_info.time_out_flag == 0)
@@ -91,7 +56,6 @@ int main(void)
                 {
                     CpuTimer0Regs.TCR.bit.TSS = 1;
                 }
-                updata_info.time_out_flag = 0;
                 can_rx_msg.rx_update = NON_CHANGE;
                 CAN_BOOT_ExecutiveCommand(&can_rx_msg);
                 GpioDataRegs.GPATOGGLE.bit.GPIO23 = 1;
