@@ -4,6 +4,7 @@
  *作者: 皇甫仁和
  ********************************************************/
 #include "CANA.h"
+#include "BootLoader.h"
 CANBus_Baudrate CANBus_Baudrate_table[27] =
 {
 #if CPU_FRQ_150MHZ
@@ -316,7 +317,7 @@ static void CANA_RX_Config(void)
 		/*----------以下代码是配置接受邮箱的相关代码------------*/
 		//邮箱31相关配置
 		ECanaMboxes.MBOX31.MSGCTRL.bit.DLC = 8;//配置数据长度，应该是没意义的;
-		ECanaMboxes.MBOX31.MSGID.all = 0x1200;//设置接收消息的有效ID
+		ECanaMboxes.MBOX31.MSGID.all = DEVICE_ADDR<<4;//设置接收消息的有效ID
 		ECanaMboxes.MBOX31.MSGID.bit.AME =1;//屏蔽使能位,
 		ECanaMboxes.MBOX31.MSGID.bit.IDE = CAN_ID_EXT;
 		/*
